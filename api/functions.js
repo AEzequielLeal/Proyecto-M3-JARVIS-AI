@@ -4,7 +4,7 @@ import {
     extractGeminiText
 } from "../src/utils.js";
 
-/* PERSONALIDAD DE JARVIS */
+/* PERSONALIDAD DE J.A.R.V.I.S. */
 
 const SYSTEM_PROMPT = `
 Eres J.A.R.V.I.S., el sofisticado asistente virtual
@@ -14,13 +14,12 @@ PERSONALIDAD:
 - Inteligente, elegante, formal y eficiente.
 - Tienes un humor sutil e irónico.
 - Eres respetuoso y servicial.
-- Te expresas con seguridad, sin ser arrogante.
 
 FORMA DE HABLAR:
 - Responde en español.
-- Usa ocasionalmente expresiones como "señor",
-  "entendido" o "a sus órdenes".
-- Da respuestas breves, naturales y apropiadas para chat.
+- Usa ocasionalmente "señor", "entendido" o
+  "a sus órdenes".
+- Da respuestas breves y naturales.
 - No repitas siempre las mismas expresiones.
 
 CONOCIMIENTO:
@@ -47,12 +46,13 @@ const MODELOS = [
     "gemini-3.8-flash"
 ];
 
-const esperar = (ms) =>
-    new Promise(resolve => setTimeout(resolve, ms));
+// Tiempo máximo por modelo: 6 segundos
+const TIEMPO_MAXIMO = 6000;
 
 /* FUNCIÓN SERVERLESS */
 
 export async function POST(request) {
+
     let body;
 
     try {
@@ -64,7 +64,8 @@ export async function POST(request) {
         );
     }
 
-    // Validar mensajes
+    /* VALIDAR HISTORIAL */
+
     if (
         !Array.isArray(body?.messages) ||
         body.messages.length === 0 ||
@@ -77,7 +78,7 @@ export async function POST(request) {
         )
     ) {
         return Response.json(
-            { error: "Historial inválido" },
+            { error: "Historial de mensajes inválido" },
             { status: 400 }
         );
     }
@@ -88,12 +89,13 @@ export async function POST(request) {
         contents = prepareHistory(body.messages);
     } catch {
         return Response.json(
-            { error: "No hay mensajes válidos" },
+            { error: "No hay mensajes válidos para enviar" },
             { status: 400 }
         );
     }
 
-    // API KEY PRIVADA
+    /* CLAVE PRIVADA */
+
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -102,6 +104,8 @@ export async function POST(request) {
             { status: 500 }
         );
     }
+
+    /* PREPARAR PETICIÓN */
 
     const payload = JSON.stringify({
         systemInstruction: {
@@ -113,102 +117,110 @@ export async function POST(request) {
         }
     });
 
-    // Probar modelos en orden
+    /* CONSULTAR GEMINI */
+
     for (const modelo of MODELOS) {
 
-        // Dos intentos por modelo
-        for (let intento = 1; intento <= 2; intento++) {
+        try {
+            console.log("Consultando modelo:", modelo);
 
-            try {
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "x-goog-api-key": apiKey
-                        },
-                        body: payload
-                    }
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-goog-api-key": apiKey
+                    },
+                    body: payload,
+
+                    // Evita esperar indefinidamente
+                    signal: AbortSignal.timeout(TIEMPO_MAXIMO)
+                }
+            );
+
+            /* RESPUESTA CORRECTA */
+
+            if (response.ok) {
+                const result = await response.json();
+                const reply = extractGeminiText(result);
+
+                console.log(
+                    "Respuesta obtenida con:",
+                    modelo
                 );
 
-                // RESPUESTA EXITOSA
-                if (response.ok) {
-                    const result = await response.json();
-                    const reply = extractGeminiText(result);
+                return Response.json({ reply });
+            }
 
-                    return Response.json({ reply });
-                }
+            /* ERRORES DE GOOGLE */
 
-                const detalle = await response.json()
-                    .catch(() => null);
+            const detalle = await response.json()
+                .catch(() => null);
 
-                // Registrar estado, nunca la clave
-                console.warn(
-                    "Gemini:",
-                    modelo,
-                    response.status,
-                    detalle?.error?.status
-                );
+            console.warn(
+                "Modelo:",
+                modelo,
+                "HTTP:",
+                response.status,
+                "Estado:",
+                detalle?.error?.status
+            );
 
-                // Modelo ocupado: esperar y reintentar
-                if (response.status === 503) {
-                    if (intento === 1) {
-                        await esperar(1200);
-                    }
+            // Modelo ocupado o no disponible:
+            // probar inmediatamente el siguiente
+            if (
+                response.status === 503 ||
+                response.status === 404
+            ) {
+                continue;
+            }
 
-                    continue;
-                }
-
-                // Modelo no disponible: pasar al siguiente
-                if (response.status === 404) {
-                    break;
-                }
-
-                // Límite de solicitudes
-                if (response.status === 429) {
-                    return Response.json(
-                        {
-                            error: "Se alcanzó el límite de solicitudes de Gemini."
-                        },
-                        { status: 429 }
-                    );
-                }
-
-                // Error de autenticación
-                if ([401, 403].includes(response.status)) {
-                    return Response.json(
-                        {
-                            error: "Gemini rechazó la autorización."
-                        },
-                        { status: 502 }
-                    );
-                }
-
+            if (response.status === 429) {
                 return Response.json(
                     {
-                        error: `Error de Gemini HTTP ${response.status}`
+                        error: "Se alcanzó el límite de solicitudes de Gemini. Intentá más tarde."
+                    },
+                    { status: 429 }
+                );
+            }
+
+            if (
+                response.status === 401 ||
+                response.status === 403
+            ) {
+                return Response.json(
+                    {
+                        error: "Gemini rechazó la autorización."
                     },
                     { status: 502 }
                 );
-
-            } catch (error) {
-                console.error(
-                    "Error al consultar Gemini:",
-                    modelo,
-                    error.message
-                );
-
-                if (intento === 1) {
-                    await esperar(1200);
-                }
             }
+
+            return Response.json(
+                {
+                    error: `Gemini devolvió un error HTTP ${response.status}`
+                },
+                { status: 502 }
+            );
+
+        } catch (error) {
+
+            // Si tarda más de 6 segundos,
+            // probar el siguiente modelo
+            console.warn(
+                "Fallo o tiempo agotado:",
+                modelo,
+                error.name
+            );
         }
     }
 
+    /* NINGÚN MODELO RESPONDIÓ */
+
     return Response.json(
         {
-            error: "Los modelos de Gemini están temporalmente ocupados. Intentá más tarde."
+            error: "Gemini no respondió a tiempo. Intentá nuevamente."
         },
         { status: 503 }
     );
