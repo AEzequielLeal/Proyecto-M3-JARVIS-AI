@@ -89,6 +89,7 @@ export async function POST(request) {
 
     // La clave solo existe en el servidor
     const apiKey = process.env.GEMINI_API_KEY;
+    console.log("¿Gemini key disponible?", Boolean(apiKey));
 
     if (!apiKey) {
         return Response.json(
