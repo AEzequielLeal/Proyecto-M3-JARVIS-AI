@@ -21,14 +21,14 @@ PERSONALIDAD:
 FORMA DE HABLAR:
 - Responde en español.
 - Usa ocasionalmente expresiones como "señor",
-    "entendido" o "a sus órdenes".
+  "entendido" o "a sus órdenes".
 - Da respuestas breves y naturales, apropiadas
-    para una conversación de chat.
+  para una conversación de chat.
 - No repitas siempre las mismas expresiones.
 
 CONOCIMIENTO:
 - Conoces la tecnología, la ciencia y el
-    universo ficticio de Tony Stark.
+  universo ficticio de Tony Stark.
 - Puedes conversar sobre temas generales.
 - Mantienes el contexto de la conversación.
 
@@ -43,14 +43,39 @@ Mantente fiel a tu personalidad durante la conversación.
 `;
 
 /* =========================
-    FUNCIÓN SERVERLESS
+   REINTENTOS AUTOMÁTICOS
+========================= */
+
+async function fetchConReintento(url, opciones) {
+
+    for (let intento = 0; intento < 3; intento++) {
+
+        const respuesta = await fetch(url, opciones);
+
+        // Si no hay error 503, devolver la respuesta
+        if (respuesta.status !== 503 || intento === 2) {
+            return respuesta;
+        }
+
+        // Esperar antes del siguiente intento
+        await new Promise((resolve) => {
+            setTimeout(resolve, 1000 * (intento + 1));
+        });
+    }
+}
+
+/* =========================
+   FUNCIÓN SERVERLESS
 ========================= */
 
 export async function POST(request) {
+
     let body;
 
+    // Leer los datos recibidos
     try {
         body = await request.json();
+
     } catch {
         return Response.json(
             { error: "El JSON enviado no es válido" },
@@ -58,7 +83,10 @@ export async function POST(request) {
         );
     }
 
-    // Validar historial
+    /* =========================
+       VALIDAR HISTORIAL
+    ========================= */
+
     if (
         !Array.isArray(body?.messages) ||
         body.messages.length > 60 ||
@@ -80,6 +108,7 @@ export async function POST(request) {
 
     try {
         contents = prepareHistory(body.messages);
+
     } catch {
         return Response.json(
             { error: "No hay mensajes válidos para enviar" },
@@ -87,9 +116,12 @@ export async function POST(request) {
         );
     }
 
+    /* =========================
+       API KEY SEGURA
+    ========================= */
+
     // La clave solo existe en el servidor
     const apiKey = process.env.GEMINI_API_KEY;
-    console.log("¿Gemini key disponible?", Boolean(apiKey));
 
     if (!apiKey) {
         return Response.json(
@@ -98,52 +130,92 @@ export async function POST(request) {
         );
     }
 
+    /* =========================
+       CONEXIÓN CON GEMINI
+    ========================= */
+
     try {
-        const response = await fetch(
+
+        const response = await fetchConReintento(
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent",
             {
                 method: "POST",
+
                 headers: {
                     "Content-Type": "application/json",
                     "x-goog-api-key": apiKey
                 },
+
                 body: JSON.stringify({
+
                     systemInstruction: {
-                        parts: [{ text: SYSTEM_PROMPT }]
+                        parts: [
+                            { text: SYSTEM_PROMPT }
+                        ]
                     },
+
                     contents,
+
                     generationConfig: {
                         maxOutputTokens: 500
                     }
+
                 })
             }
         );
 
+        /* =========================
+           MANEJO DE ERRORES HTTP
+        ========================= */
+
         if (!response.ok) {
-            const message = response.status === 429
-                ? "Se alcanzó el límite de solicitudes de Gemini"
-                : `Gemini devolvió un error HTTP ${response.status}`;
+
+            let message;
+
+            if (response.status === 429) {
+                message = "Se alcanzó el límite de solicitudes de Gemini";
+
+            } else if (response.status === 503) {
+                message = "Gemini está ocupado. Intentá nuevamente en unos momentos.";
+
+            } else {
+                message = `Gemini devolvió un error HTTP ${response.status}`;
+            }
 
             return Response.json(
                 { error: message },
-                { status: response.status === 429 ? 429 : 502 }
+                {
+                    status: response.status === 429 ? 429 : 502
+                }
             );
         }
 
+        /* =========================
+           PROCESAR RESPUESTA
+        ========================= */
+
         const result = await response.json();
+
         const reply = extractGeminiText(result);
 
+        // Enviar respuesta al frontend
         return Response.json({ reply });
 
     } catch {
+
         return Response.json(
-            { error: "No se pudo obtener una respuesta de Gemini" },
+            {
+                error: "No se pudo obtener una respuesta de Gemini"
+            },
             { status: 502 }
         );
     }
 }
 
-// Rechazar peticiones GET
+/* =========================
+   RECHAZAR PETICIONES GET
+========================= */
+
 export function GET() {
     return Response.json(
         { error: "Este endpoint requiere POST" },
