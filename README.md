@@ -268,6 +268,22 @@ Se utilizó ChatGPT como herramienta de apoyo para comprender conceptos de progr
 
 Las sugerencias de IA se utilizaron como apoyo y se adaptaron a los requisitos del Proyecto Integrador M3.
 
+
+## 📸 Capturas de pantalla
+
+### Vista Home - Computadora
+
+![Vista principal de JARVIS](screenshots/home-desktop.png)
+
+### Chat con Gemini - Computadora
+
+![Chat de JARVIS funcionando](screenshots/chat-desktop.png)
+
+### Chat - Celular
+
+![JARVIS adaptado a celular](screenshots/chat-mobile.png)
+
+
 ## 👨‍💻 Autor
 
 **Ezequiel Leal**
