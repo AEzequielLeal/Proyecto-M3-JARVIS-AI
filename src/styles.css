@@ -1,0 +1,716 @@
+
+/* =========================
+   VARIABLES
+========================= */
+
+:root {
+    --background: #030b15;
+    --surface: #071624;
+    --primary: #22d3ee;
+    --primary-light: #a5f3fc;
+    --border: #164e63;
+    --text: #e2e8f0;
+    --text-secondary: #7896ab;
+    --error: #f87171;
+}
+
+/* =========================
+   ESTILOS GENERALES
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text);
+
+    background-color: var(--background);
+    background-image:
+        linear-gradient(rgba(34, 211, 238, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.025) 1px, transparent 1px);
+
+    background-size: 35px 35px;
+
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    padding: 1.3rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(3, 11, 21, 0.95);
+}
+
+.logo {
+    color: var(--primary);
+    font-size: 1.6rem;
+    font-weight: bold;
+    letter-spacing: 5px;
+    text-shadow: 0 0 15px var(--primary);
+}
+
+.navigation {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.navigation a {
+    padding: 0.6rem 1rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid transparent;
+}
+
+.navigation a:hover,
+.navigation a.active {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.system-status {
+    color: var(--primary);
+    font-family: monospace;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+/* =========================
+   CONTENIDO PRINCIPAL
+========================= */
+
+.main-container {
+    flex: 1;
+    width: 100%;
+    max-width: 1400px;
+    padding: 1rem;
+    margin: 0 auto;
+}
+
+.subtitle {
+    color: var(--primary);
+    font-family: monospace;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    line-height: 1.6;
+}
+
+/* =========================
+   HOME
+========================= */
+
+.home-view {
+    min-height: 65vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+}
+
+.home-view h1 {
+    font-size: 2.5rem;
+    letter-spacing: 5px;
+    color: var(--primary);
+    text-shadow: 0 0 30px rgba(34, 211, 238, 0.7);
+}
+
+.home-view h2 {
+    font-size: 1rem;
+    font-weight: normal;
+    color: var(--text-secondary);
+}
+
+.home-view p {
+    max-width: 600px;
+    line-height: 1.8;
+}
+
+.primary-button {
+    display: inline-block;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    background: rgba(34, 211, 238, 0.08);
+    letter-spacing: 2px;
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+    transition: 0.3s;
+}
+
+.primary-button:hover {
+    background: var(--primary);
+    color: var(--background);
+}
+
+/* =========================
+   VISTA CHAT
+========================= */
+
+.chat-view {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+}
+
+/* =========================
+   PANEL HOLOGRÁFICO
+========================= */
+
+.hud-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+
+    padding: 1.5rem 0.75rem;
+    border: 1px solid var(--border);
+
+    background: radial-gradient(
+        circle,
+        rgba(34, 211, 238, 0.12),
+        transparent 70%
+    );
+}
+
+.hud-panel h2 {
+    color: var(--primary);
+    letter-spacing: 6px;
+    font-size: 1.5rem;
+    text-shadow: 0 0 15px var(--primary);
+}
+
+#core-status {
+    color: var(--primary-light);
+    font-family: monospace;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+.system-info {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    font-family: monospace;
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+}
+
+/* =========================
+   NÚCLEO DE JARVIS
+========================= */
+
+.jarvis-core {
+    position: relative;
+    width: 100%;
+    max-width: 260px;
+    aspect-ratio: 1;
+
+    display: grid;
+    place-items: center;
+}
+
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    aspect-ratio: 1;
+}
+
+.ring-1 {
+    width: 100%;
+    border: 2px dashed var(--primary);
+    opacity: 0.5;
+    animation: rotate 30s linear infinite;
+}
+
+.ring-2 {
+    width: 89%;
+    border: 3px solid transparent;
+    border-top-color: var(--primary);
+    border-bottom-color: var(--primary);
+    box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
+    animation: rotate 15s linear infinite reverse;
+}
+
+.ring-3 {
+    width: 77%;
+    border: 7px dashed var(--primary);
+    opacity: 0.8;
+    animation: rotate 22s linear infinite;
+}
+
+.ring-4 {
+    width: 63%;
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+}
+
+.ring-5 {
+    width: 52%;
+    border: 3px dashed var(--primary-light);
+    animation: rotate 12s linear infinite reverse;
+}
+
+.core-center {
+    width: 39%;
+    aspect-ratio: 1;
+    border: 1px solid var(--primary);
+    border-radius: 50%;
+
+    display: grid;
+    place-items: center;
+
+    background: radial-gradient(
+        circle,
+        rgba(34, 211, 238, 0.35),
+        transparent
+    );
+
+    box-shadow:
+        0 0 30px rgba(34, 211, 238, 0.4),
+        inset 0 0 20px rgba(34, 211, 238, 0.3);
+
+    animation: pulse 3s ease-in-out infinite;
+}
+
+/* =========================
+   ONDAS DE RESPUESTA
+========================= */
+
+.wave {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.wave span {
+    width: 4px;
+    height: 36px;
+    border-radius: 5px;
+    background: var(--primary-light);
+    box-shadow: 0 0 8px var(--primary);
+    transform: scaleY(0.15);
+}
+
+.wave span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.wave span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+.wave span:nth-child(4) {
+    animation-delay: 0.1s;
+}
+
+.wave span:nth-child(5) {
+    animation-delay: 0.3s;
+}
+
+.wave span:nth-child(6) {
+    animation-delay: 0.5s;
+}
+
+/* =========================
+   ESTADOS DE ANIMACIÓN
+========================= */
+
+/* Cuando Jarvis está procesando */
+
+.jarvis-core[data-state="processing"] .ring-1 {
+    animation-duration: 5s;
+}
+
+.jarvis-core[data-state="processing"] .ring-2 {
+    animation-duration: 3s;
+}
+
+.jarvis-core[data-state="processing"] .ring-3 {
+    animation-duration: 4s;
+}
+
+.jarvis-core[data-state="processing"] .core-center {
+    animation-duration: 0.7s;
+}
+
+/* Cuando Jarvis está respondiendo */
+
+.jarvis-core[data-state="responding"] .wave span {
+    animation-name: sound-wave;
+    animation-duration: 0.8s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+.jarvis-core[data-state="responding"] .ring-2 {
+    animation-duration: 6s;
+}
+
+/* =========================
+   KEYFRAMES
+========================= */
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 40px var(--primary);
+    }
+}
+
+@keyframes sound-wave {
+    from {
+        transform: scaleY(0.2);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+/* =========================
+   CONTENEDOR DEL CHAT
+========================= */
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 480px;
+
+    background: rgba(7, 22, 36, 0.9);
+    border: 1px solid var(--border);
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.avatar {
+    display: grid;
+    place-items: center;
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+
+    border: 1px solid var(--primary);
+    border-radius: 50%;
+    color: var(--primary);
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+}
+
+.chat-header h1 {
+    font-size: 1rem;
+    letter-spacing: 3px;
+    color: var(--primary);
+}
+
+.chat-header p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.4rem;
+}
+
+/* =========================
+   MENSAJES
+========================= */
+
+.messages {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    overflow-y: auto;
+    scrollbar-color: var(--border) var(--background);
+}
+
+.message {
+    max-width: 90%;
+    flex-shrink: 0;
+    padding: 0.9rem;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+.message-author {
+    display: block;
+    font-family: monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.character-message {
+    align-self: flex-start;
+    background: rgba(34, 211, 238, 0.05);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 10px 10px 10px;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: #12394c;
+    border: 1px solid #0891b2;
+    border-radius: 10px 10px 0 10px;
+}
+
+/* =========================
+   ESTADOS DEL CHAT
+========================= */
+
+.typing-indicator {
+    padding: 0.8rem 1rem;
+    color: var(--primary);
+    font-family: monospace;
+    font-size: 0.8rem;
+    animation: pulse 2s infinite;
+}
+
+.error-message {
+    padding: 0.8rem 1rem;
+    color: var(--error);
+    background: rgba(248, 113, 113, 0.08);
+    font-size: 0.85rem;
+}
+
+/* =========================
+   FORMULARIO
+========================= */
+
+.chat-form {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.chat-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.8rem;
+
+    color: var(--text);
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.chat-form input:focus {
+    border-color: var(--primary);
+}
+
+.chat-form input::placeholder {
+    color: var(--text-secondary);
+}
+
+.chat-form button {
+    padding: 0.8rem;
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+
+    background: var(--primary);
+    color: var(--background);
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.chat-form button:hover {
+    background: var(--primary-light);
+    box-shadow: 0 0 15px var(--primary);
+}
+
+.chat-form button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* =========================
+   ABOUT
+========================= */
+
+.about-view {
+    max-width: 800px;
+    margin: 1rem auto;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.about-view h1,
+.about-view h2 {
+    color: var(--primary);
+    margin: 1.5rem 0 1rem;
+}
+
+.about-view p {
+    color: var(--text);
+    line-height: 1.8;
+}
+
+.about-view ul {
+    padding-left: 1.5rem;
+    line-height: 2;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+    padding: 1.5rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-family: monospace;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+}
+
+/* =========================
+   TABLET - 768px
+========================= */
+
+@media (min-width: 768px) {
+
+    .header {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 1.5rem 2rem;
+    }
+
+    .main-container {
+        padding: 2rem;
+    }
+
+    .jarvis-core {
+        max-width: 300px;
+    }
+
+    .chat-container {
+        height: 500px;
+    }
+
+    .message {
+        max-width: 75%;
+    }
+
+    .home-view h1 {
+        font-size: 4rem;
+    }
+}
+
+/* =========================
+   DESKTOP - 1024px
+========================= */
+
+@media (min-width: 1024px) {
+
+    .chat-view {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+        gap: 2rem;
+    }
+
+    .hud-panel {
+        min-height: 600px;
+    }
+
+    .jarvis-core {
+        max-width: 360px;
+    }
+
+    .chat-container {
+        height: 600px;
+    }
+
+    .header {
+        padding: 1.5rem 4rem;
+    }
+
+    .message {
+        max-width: 75%;
+        font-size: 1rem;
+    }
+
+    .home-view h1 {
+        font-size: 5rem;
+    }
+}
+
+/* Accesibilidad: reducir movimiento */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

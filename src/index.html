@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. AI</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+    <!-- Navegación -->
+    <header class="header">
+        <a href="/home" class="logo">J.A.R.V.I.S.</a>
+
+        <nav class="navigation" aria-label="Navegación principal">
+            <a href="/home">Home</a>
+            <a href="/chat" class="active" aria-current="page">Chat</a>
+            <a href="/about">About</a>
+        </nav>
+
+        <span class="system-status">● SYSTEM ONLINE</span>
+    </header>
+
+    <main class="main-container">
+
+        <!-- VISTA HOME -->
+        <section id="home" class="view home-view" hidden>
+
+            <span class="subtitle">STARK INDUSTRIES</span>
+
+            <h1>J.A.R.V.I.S.</h1>
+
+            <h2>Just A Rather Very Intelligent System</h2>
+
+            <p>
+                Conocé al asistente virtual de Tony Stark.
+                Una inteligencia artificial sofisticada,
+                estratégica y siempre preparada para ayudarte.
+            </p>
+
+            <a href="/chat" class="primary-button">
+                INICIAR SISTEMA
+            </a>
+
+        </section>
+
+        <!-- VISTA CHAT -->
+        <section id="chat" class="view chat-view">
+
+            <!-- Panel holográfico -->
+            <div class="hud-panel">
+
+                <span class="subtitle">ARTIFICIAL INTELLIGENCE CORE</span>
+
+                <div id="jarvis-core"
+                    class="jarvis-core"
+                    data-state="idle"
+                    aria-hidden="true">
+
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                    <div class="ring ring-4"></div>
+                    <div class="ring ring-5"></div>
+
+                    <div class="core-center">
+                        <div class="wave">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <h2>J.A.R.V.I.S.</h2>
+
+                <p id="core-status" role="status">
+                    AWAITING COMMAND
+                </p>
+
+                <div class="system-info">
+                    <span>AI CORE</span>
+                    <span>STANDBY</span>
+                    <span>GEMINI</span>
+                </div>
+
+            </div>
+
+            <!-- Panel de conversación -->
+            <div class="chat-container">
+
+                <div class="chat-header">
+                    <div class="avatar">J</div>
+
+                    <div>
+                        <h1>J.A.R.V.I.S.</h1>
+                        <p>Intelligent Assistant</p>
+                    </div>
+                </div>
+
+                <!-- Área de mensajes -->
+                <div id="messages"
+                    class="messages"
+                    role="log"
+                    aria-label="Conversación"
+                    aria-live="polite">
+
+                    <div class="message character-message">
+                        <span class="message-author">J.A.R.V.I.S.</span>
+                        <p>
+                            Bienvenido, señor. Todos los sistemas
+                            están operativos. ¿En qué puedo ayudarlo?
+                        </p>
+                    </div>
+
+                    <div class="message user-message">
+                        <span class="message-author">Usuario</span>
+                        <p>Jarvis, inicia el sistema.</p>
+                    </div>
+
+                </div>
+
+                <!-- Estado de carga -->
+                <div id="typing-indicator"
+                    class="typing-indicator"
+                    role="status"
+                    hidden>
+                    J.A.R.V.I.S. está procesando...
+                </div>
+
+                <!-- Estado de error -->
+                <div id="error-message"
+                    class="error-message"
+                    role="alert"
+                    hidden>
+                    Error de comunicación. Intente nuevamente.
+                </div>
+
+                <!-- Formulario -->
+                <form id="chat-form" class="chat-form">
+
+                    <input
+                        type="text"
+                        id="message-input"
+                        aria-label="Mensaje para Jarvis"
+                        placeholder="Introduce un comando..."
+                        autocomplete="off"
+                        required
+                    >
+
+                    <button type="submit" id="send-button">
+                        Enviar
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+        <!-- VISTA ABOUT -->
+        <section id="about" class="view about-view" hidden>
+
+            <span class="subtitle">SYSTEM INFORMATION</span>
+
+            <h1>Acerca del proyecto</h1>
+
+            <p>
+                J.A.R.V.I.S. AI es una aplicación inspirada
+                en el asistente virtual de Tony Stark,
+                perteneciente al universo Marvel.
+            </p>
+
+            <h2>Proyecto Integrador M3</h2>
+
+            <p>
+                Desarrollado para el bootcamp de Henry
+                con el objetivo de integrar inteligencia
+                artificial en una Single Page Application.
+            </p>
+
+            <h2>Tecnologías</h2>
+
+            <ul>
+                <li>HTML5</li>
+                <li>CSS3</li>
+                <li>JavaScript</li>
+                <li>History API</li>
+                <li>Google Gemini AI</li>
+                <li>Vercel Functions</li>
+                <li>Vitest</li>
+            </ul>
+
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        J.A.R.V.I.S. AI | Proyecto Integrador M3 - Henry
+    </footer>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
+
