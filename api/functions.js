@@ -52,7 +52,7 @@ async function fetchConReintento(url, opciones) {
 
         const respuesta = await fetch(url, opciones);
 
-        // Si no hay error 503, devolver la respuesta
+        // Reintentar solamente si Gemini devuelve HTTP 503
         if (respuesta.status !== 503 || intento === 2) {
             return respuesta;
         }
@@ -72,7 +72,7 @@ export async function POST(request) {
 
     let body;
 
-    // Leer los datos recibidos
+    // Leer los datos enviados desde el chat
     try {
         body = await request.json();
 
@@ -120,7 +120,6 @@ export async function POST(request) {
        API KEY SEGURA
     ========================= */
 
-    // La clave solo existe en el servidor
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -165,21 +164,38 @@ export async function POST(request) {
         );
 
         /* =========================
-           MANEJO DE ERRORES HTTP
+           DIAGNÓSTICO DE ERRORES
         ========================= */
 
         if (!response.ok) {
 
+            // Leer la explicación que envía Google
+            const detalle = await response.json()
+                .catch(() => null);
+
+            // Mostrar información en los registros de Vercel
+            console.error("Error de Gemini:", {
+                codigoHTTP: response.status,
+                estadoGoogle: detalle?.error?.status,
+                mensajeGoogle: detalle?.error?.message
+            });
+
             let message;
 
             if (response.status === 429) {
-                message = "Se alcanzó el límite de solicitudes de Gemini";
+
+                message =
+                    "Se alcanzó el límite de solicitudes de Gemini.";
 
             } else if (response.status === 503) {
-                message = "Gemini está ocupado. Intentá nuevamente en unos momentos.";
+
+                message =
+                    "Gemini está ocupado. Intentá nuevamente en unos momentos.";
 
             } else {
-                message = `Gemini devolvió un error HTTP ${response.status}`;
+
+                message =
+                    `Gemini devolvió un error HTTP ${response.status}`;
             }
 
             return Response.json(
@@ -198,10 +214,14 @@ export async function POST(request) {
 
         const reply = extractGeminiText(result);
 
-        // Enviar respuesta al frontend
         return Response.json({ reply });
 
-    } catch {
+    } catch (error) {
+
+        console.error(
+            "Error al procesar la respuesta de Gemini:",
+            error.message
+        );
 
         return Response.json(
             {
@@ -217,6 +237,7 @@ export async function POST(request) {
 ========================= */
 
 export function GET() {
+
     return Response.json(
         { error: "Este endpoint requiere POST" },
         { status: 405 }
