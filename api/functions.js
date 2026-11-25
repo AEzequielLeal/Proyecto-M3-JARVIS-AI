@@ -46,7 +46,7 @@ const MODELOS = [
     "gemini-3.8-flash"
 ];
 
-// Tiempo máximo por modelo: 6 segundos
+// Tiempo máximo de espera por modelo
 const TIEMPO_MAXIMO = 6000;
 
 /* FUNCIÓN SERVERLESS */
@@ -105,7 +105,7 @@ export async function POST(request) {
         );
     }
 
-    /* PREPARAR PETICIÓN */
+    /* PREPARAR PETICIÓN A GEMINI */
 
     const payload = JSON.stringify({
         systemInstruction: {
@@ -117,13 +117,11 @@ export async function POST(request) {
         }
     });
 
-    /* CONSULTAR GEMINI */
+    /* CONSULTAR MODELOS */
 
     for (const modelo of MODELOS) {
 
         try {
-            console.log("Consultando modelo:", modelo);
-
             const response = await fetch(
                 `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`,
                 {
@@ -133,8 +131,6 @@ export async function POST(request) {
                         "x-goog-api-key": apiKey
                     },
                     body: payload,
-
-                    // Evita esperar indefinidamente
                     signal: AbortSignal.timeout(TIEMPO_MAXIMO)
                 }
             );
@@ -145,36 +141,19 @@ export async function POST(request) {
                 const result = await response.json();
                 const reply = extractGeminiText(result);
 
-                console.log(
-                    "Respuesta obtenida con:",
-                    modelo
-                );
-
                 return Response.json({ reply });
             }
 
-            /* ERRORES DE GOOGLE */
+            /* MODELO OCUPADO O NO DISPONIBLE */
 
-            const detalle = await response.json()
-                .catch(() => null);
-
-            console.warn(
-                "Modelo:",
-                modelo,
-                "HTTP:",
-                response.status,
-                "Estado:",
-                detalle?.error?.status
-            );
-
-            // Modelo ocupado o no disponible:
-            // probar inmediatamente el siguiente
             if (
                 response.status === 503 ||
                 response.status === 404
             ) {
                 continue;
             }
+
+            /* LÍMITE DE SOLICITUDES */
 
             if (response.status === 429) {
                 return Response.json(
@@ -184,6 +163,8 @@ export async function POST(request) {
                     { status: 429 }
                 );
             }
+
+            /* ERROR DE AUTORIZACIÓN */
 
             if (
                 response.status === 401 ||
@@ -197,6 +178,8 @@ export async function POST(request) {
                 );
             }
 
+            /* OTROS ERRORES */
+
             return Response.json(
                 {
                     error: `Gemini devolvió un error HTTP ${response.status}`
@@ -204,15 +187,9 @@ export async function POST(request) {
                 { status: 502 }
             );
 
-        } catch (error) {
-
-            // Si tarda más de 6 segundos,
-            // probar el siguiente modelo
-            console.warn(
-                "Fallo o tiempo agotado:",
-                modelo,
-                error.name
-            );
+        } catch {
+            // Si falla la conexión o vence el tiempo,
+            // continuar con el siguiente modelo.
         }
     }
 
@@ -226,7 +203,7 @@ export async function POST(request) {
     );
 }
 
-/* RECHAZAR GET */
+/* RECHAZAR PETICIONES GET */
 
 export function GET() {
     return Response.json(
